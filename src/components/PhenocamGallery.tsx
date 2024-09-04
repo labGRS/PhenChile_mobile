@@ -4,9 +4,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addDays, subDays } from "date-fns";
-import {Phenocam} from "@/app/page";
+import { Phenocam } from "@/app/page";
 import Image from "next/image";
-import {PROXY_URL} from "@/app/constants";
+import { PROXY_URL } from "@/app/constants";
+import { parseImageFilename } from "@/app/utils";
 
 type PhenocamGalleryProps = {
   phenocam: Phenocam;
@@ -17,6 +18,9 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [filteredImages, setFilteredImages] = useState<any>([]);
   const [heroImage, setHeroImage] = useState<string>(phenocam.images[0].path);
+  const [currentPhotoDate, setCurrentPhotoDate] = useState<Date | undefined>(
+    undefined,
+  );
   const [excludeDates, setExcludeDates] = useState<Date[]>([]);
   const [lastAvailableDate, setLastAvailableDate] = useState<
     string | undefined
@@ -52,8 +56,8 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
 
   const handleDateChange = useCallback(
     (date: Date) => {
-        const utc = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-        setSelectedDate(utc);
+      const utc = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+      setSelectedDate(utc);
       if (date) {
         const dateString = date.toJSON().split("T")[0]; // Format date to YYYY-MM-DD
         const newFilteredImages = phenocam.images.filter((image) =>
@@ -62,16 +66,24 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
         setFilteredImages(newFilteredImages.reverse().slice(0, 20));
         if (newFilteredImages.length > 0) {
           setHeroImage(newFilteredImages[0].path);
+          setCurrentPhotoDate(parseImageFilename(newFilteredImages[0].path));
         } else {
           setHeroImage("");
+          setCurrentPhotoDate(undefined);
         }
       } else {
         setFilteredImages(phenocam.images.slice(0, 20));
         setHeroImage(phenocam.images[0].path);
+        setCurrentPhotoDate(parseImageFilename(phenocam.images[0].path));
       }
     },
     [phenocam.images],
   );
+
+  const handleHeroChange = (path: string) => {
+    setHeroImage(path);
+    setCurrentPhotoDate(parseImageFilename(path));
+  };
 
   useEffect(() => {
     if (lastAvailableDate && loading) {
@@ -94,6 +106,9 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
           maxDate={today}
           excludeDates={excludeDates}
         />
+        <p className="p-2">
+          {phenocam.metadata.sitio} - {currentPhotoDate?.toLocaleTimeString()}
+        </p>
       </div>
 
       {/* Hero Image */}
@@ -122,7 +137,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
           <div
             key={index}
             className="cursor-pointer"
-            onClick={() => setHeroImage(image.path)}
+            onClick={() => handleHeroChange(image.path)}
           >
             <Image
               src={PROXY_URL + image.path}
