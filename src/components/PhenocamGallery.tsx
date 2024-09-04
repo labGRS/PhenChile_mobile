@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addDays, subDays } from "date-fns";
-import { Phenocam } from "@/app/page";
+import {Phenocam} from "@/app/page";
 import Image from "next/image";
-import { router } from "next/client";
+import {PROXY_URL} from "@/app/constants";
 
 type PhenocamGalleryProps = {
   phenocam: Phenocam;
@@ -15,7 +15,7 @@ type PhenocamGalleryProps = {
 const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [filteredImages, setFilteredImages] = useState<any>(phenocam.images);
+  const [filteredImages, setFilteredImages] = useState<any>([]);
   const [heroImage, setHeroImage] = useState<string>(phenocam.images[0].path);
   const [excludeDates, setExcludeDates] = useState<Date[]>([]);
   const [lastAvailableDate, setLastAvailableDate] = useState<
@@ -42,7 +42,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
     let exclude: Date[] = [];
     // loop since starting date and create exclude dates that don't have images
     for (let i = 0; i <= 14; i++) {
-      const checkDate = addDays(since, i).toISOString().split("T")[0];
+      const checkDate = addDays(since, i).toJSON().split("T")[0];
       if (!uniq.includes(checkDate)) {
         exclude.push(new Date(checkDate));
       }
@@ -51,21 +51,22 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   }, [phenocam]);
 
   const handleDateChange = useCallback(
-    (date: Date | null) => {
-      setSelectedDate(date);
+    (date: Date) => {
+        const utc = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        setSelectedDate(utc);
       if (date) {
-        const dateString = date.toISOString().split("T")[0]; // Format date to YYYY-MM-DD
+        const dateString = date.toJSON().split("T")[0]; // Format date to YYYY-MM-DD
         const newFilteredImages = phenocam.images.filter((image) =>
           image.path.includes(dateString),
         );
-        setFilteredImages(newFilteredImages.reverse());
+        setFilteredImages(newFilteredImages.reverse().slice(0, 20));
         if (newFilteredImages.length > 0) {
           setHeroImage(newFilteredImages[0].path);
         } else {
           setHeroImage("");
         }
       } else {
-        setFilteredImages(phenocam.images);
+        setFilteredImages(phenocam.images.slice(0, 20));
         setHeroImage(phenocam.images[0].path);
       }
     },
@@ -100,7 +101,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
       <div className="hero-image my-4">
         {heroImage ? (
           <Image
-            src={heroImage}
+            src={PROXY_URL + heroImage}
             width={0}
             height={0}
             style={{ width: "100%", height: "auto" }}
@@ -124,7 +125,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
             onClick={() => setHeroImage(image.path)}
           >
             <Image
-              src={image.path}
+              src={PROXY_URL + image.path}
               alt={`Thumbnail ${index}`}
               width={0}
               height={0}

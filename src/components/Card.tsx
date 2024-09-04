@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { Phenocam } from "@/app/page";
-import { router } from "next/client";
+import {Phenocam} from "@/app/page";
 import { useRouter } from "next/navigation";
+import {PROXY_URL} from "@/app/constants";
 
 export default function Card({ cam }: { cam: Phenocam }) {
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function Card({ cam }: { cam: Phenocam }) {
     >
       <figure>
         <Image
-          src={cam.images[cam.images.length - 1].path}
+          src={PROXY_URL + cam.images[cam.images.length - 1].path}
           alt={cam.metadata.sitio}
           width={400}
           height={50}

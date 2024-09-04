@@ -2,8 +2,9 @@
 import Card from "@/components/Card";
 import Navbar from "@/components/Navbar";
 import PhenocamGallery from "@/components/PhenocamGallery";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { PROXY_URL } from "@/app/constants";
 
 export type Phenocam = {
   key: string;
@@ -33,7 +34,7 @@ export default function Home(props: any) {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    fetch(`https://phenocamsclean.s3.amazonaws.com/output.json`, {
+    fetch(PROXY_URL, {
       cache: "no-cache",
     })
       .then((r) => r.json())
