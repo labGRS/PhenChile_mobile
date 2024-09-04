@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addDays, subDays } from "date-fns";
 import { Phenocam } from "@/app/page";
 import Image from "next/image";
 import { PROXY_URL } from "@/app/constants";
 import { parseImageFilename } from "@/app/utils";
+import { es } from "date-fns/locale/es";
 
 type PhenocamGalleryProps = {
   phenocam: Phenocam;
@@ -90,70 +91,77 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
     }
   }, [handleDateChange, lastAvailableDate, loading]);
 
+  useEffect(() => {
+    registerLocale('es', es);
+    setDefaultLocale('es');
+  }, []);
+
   return (
-      <div className="container mx-auto flex flex-col md:flex-row">
-        {/* Hero Image */}
-        <div className="flex-1 my-4 md:my-0">
-          <a id="hero" />
-          <div className="hero-image">
-            {heroImage ? (
-                <Image
-                    src={PROXY_URL + heroImage}
-                    width={0}
-                    height={0}
-                    style={{ width: "100%", height: "auto" }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    alt="Hero"
-                    className="w-full h-auto rounded-lg shadow-lg"
-                />
-            ) : (
-                <div className="w-full h-64 flex items-center justify-center bg-gray-200 rounded-lg shadow-lg">
-                  No image available for selected date
-                </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar for Image Grid */}
-        <div className="w-full md:w-1/3 my-4 md:ml-4">
-          <div className="filter-toolbar mb-4">
-            <DatePicker
-                selected={selectedDate}
-                onChange={handleDateChange}
-                dateFormat="yyyy-MM-dd"
-                className="p-2 border border-gray-300 rounded-md"
-                placeholderText="Seleccione fecha"
-                minDate={twoWeeksAgo}
-                maxDate={today}
-                excludeDates={excludeDates}
+    <div className="container mx-auto flex flex-col md:flex-row">
+      {/* Hero Image */}
+      <div className="flex-1 my-4 md:my-0">
+        <a id="hero" />
+        <div className="hero-image">
+          {heroImage ? (
+            <Image
+              src={PROXY_URL + heroImage}
+              width={0}
+              height={0}
+              style={{ width: "100%", height: "auto" }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              alt="Hero"
+              className="w-full h-auto rounded-lg shadow-lg"
             />
-            <p className="p-2">
-              {phenocam.metadata.sitio} - {currentPhotoDate?.toLocaleTimeString()}
-            </p>
-          </div>
-
-          {/* Image Grid */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {filteredImages.map((image: { path: string }, index: number) => (
-                <div
-                    key={index}
-                    className="cursor-pointer"
-                    onClick={() => handleHeroChange(image.path)}
-                >
-                  <Image
-                      src={PROXY_URL + image.path}
-                      alt={`Thumbnail ${index}`}
-                      width={0}
-                      height={0}
-                      style={{ width: "100%", height: "auto" }}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="w-full h-auto rounded-lg shadow-sm"
-                  />
-                </div>
-            ))}
-          </div>
+          ) : (
+            <div className="w-full h-64 flex items-center justify-center bg-gray-200 rounded-lg shadow-lg">
+              No image available for selected date
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Sidebar for Image Grid */}
+      <div className="w-full md:w-1/3 my-4 md:ml-4">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          {phenocam.metadata.sitio}
+        </h2>
+        <div className="filter-toolbar mb-4 flex items-center">
+          <DatePicker
+              selected={selectedDate}
+              withPortal={true}
+              onChange={handleDateChange}
+              className="p-2 border border-gray-300 rounded-md cursor-pointer"
+              placeholderText="Seleccione fecha"
+              locale={'es'}
+              minDate={twoWeeksAgo}
+              maxDate={today}
+              excludeDates={excludeDates}
+              value={selectedDate?.toLocaleDateString('es') + ' ' +  currentPhotoDate?.toLocaleTimeString()}
+          />
+        </div>
+
+        {/* Image Grid */}
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {filteredImages.map((image: { path: string }, index: number) => (
+              <div
+                  key={index}
+                  className="cursor-pointer"
+                  onClick={() => handleHeroChange(image.path)}
+              >
+                <Image
+                    src={PROXY_URL + image.path}
+                    alt={`Thumbnail ${index}`}
+                    width={0}
+                    height={0}
+                    style={{width: "100%", height: "auto"}}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="w-full h-auto rounded-lg shadow-sm"
+                />
+              </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
