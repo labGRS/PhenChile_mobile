@@ -130,7 +130,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
               selected={selectedDate}
               withPortal={true}
               onChange={handleDateChange}
-              className="p-2 border border-gray-300 rounded-md cursor-pointer"
+              className="p-2 border border-gray-300 rounded-md cursor-pointer -z-10"
               placeholderText="Seleccione fecha"
               locale={'es'}
               minDate={twoWeeksAgo}
