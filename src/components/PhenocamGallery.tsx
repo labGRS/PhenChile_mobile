@@ -19,11 +19,11 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   const [filteredImages, setFilteredImages] = useState<any>([]);
   const [heroImage, setHeroImage] = useState<string>(phenocam.images[0].path);
   const [currentPhotoDate, setCurrentPhotoDate] = useState<Date | undefined>(
-    undefined,
+      undefined,
   );
   const [excludeDates, setExcludeDates] = useState<Date[]>([]);
   const [lastAvailableDate, setLastAvailableDate] = useState<
-    string | undefined
+      string | undefined
   >();
   const [twoWeeksAgo, setTwoWeeksAgo] = useState<Date | null>();
   const [today, setToday] = useState<Date | null>();
@@ -33,18 +33,16 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
     setToday(new Date());
     setTwoWeeksAgo(since);
     const dates = phenocam.images
-      .map((image) => {
-        return image.path.match(/\d{4}-\d{2}-\d{2}/)?.[0];
-      })
-      .filter((date) => date !== null) as string[];
+        .map((image) => {
+          return image.path.match(/\d{4}-\d{2}-\d{2}/)?.[0];
+        })
+        .filter((date) => date !== null) as string[];
 
     let uniq = dates.filter(function (item, pos) {
       return dates.indexOf(item) == pos;
     });
     setLastAvailableDate(uniq.reverse()[0]);
-    //setAvailableDates(uniq.map((d) => new Date(d)));
     let exclude: Date[] = [];
-    // loop since starting date and create exclude dates that don't have images
     for (let i = 0; i <= 14; i++) {
       const checkDate = addDays(since, i).toJSON().split("T")[0];
       if (!uniq.includes(checkDate)) {
@@ -55,29 +53,29 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   }, [phenocam]);
 
   const handleDateChange = useCallback(
-    (date: Date) => {
-      const utc = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-      setSelectedDate(utc);
-      if (date) {
-        const dateString = date.toJSON().split("T")[0]; // Format date to YYYY-MM-DD
-        const newFilteredImages = phenocam.images.filter((image) =>
-          image.path.includes(dateString),
-        );
-        setFilteredImages(newFilteredImages.reverse().slice(0, 20));
-        if (newFilteredImages.length > 0) {
-          setHeroImage(newFilteredImages[0].path);
-          setCurrentPhotoDate(parseImageFilename(newFilteredImages[0].path));
+      (date: Date) => {
+        const utc = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        setSelectedDate(utc);
+        if (date) {
+          const dateString = date.toJSON().split("T")[0];
+          const newFilteredImages = phenocam.images.filter((image) =>
+              image.path.includes(dateString),
+          );
+          setFilteredImages(newFilteredImages.reverse().slice(0, 20));
+          if (newFilteredImages.length > 0) {
+            setHeroImage(newFilteredImages[0].path);
+            setCurrentPhotoDate(parseImageFilename(newFilteredImages[0].path));
+          } else {
+            setHeroImage("");
+            setCurrentPhotoDate(undefined);
+          }
         } else {
-          setHeroImage("");
-          setCurrentPhotoDate(undefined);
+          setFilteredImages(phenocam.images.slice(0, 20));
+          setHeroImage(phenocam.images[0].path);
+          setCurrentPhotoDate(parseImageFilename(phenocam.images[0].path));
         }
-      } else {
-        setFilteredImages(phenocam.images.slice(0, 20));
-        setHeroImage(phenocam.images[0].path);
-        setCurrentPhotoDate(parseImageFilename(phenocam.images[0].path));
-      }
-    },
-    [phenocam.images],
+      },
+      [phenocam.images],
   );
 
   const handleHeroChange = (path: string) => {
@@ -93,65 +91,69 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
   }, [handleDateChange, lastAvailableDate, loading]);
 
   return (
-    <div className="container mx-auto">
-      {/* Filter Toolbar */}
-      <div className="filter-toolbar my-4">
-        <DatePicker
-          selected={selectedDate}
-          onChange={handleDateChange}
-          dateFormat="yyyy-MM-dd"
-          className="p-2 border border-gray-300 rounded-md"
-          placeholderText="Seleccione fecha"
-          minDate={twoWeeksAgo}
-          maxDate={today}
-          excludeDates={excludeDates}
-        />
-        <p className="p-2">
-          {phenocam.metadata.sitio} - {currentPhotoDate?.toLocaleTimeString()}
-        </p>
-      </div>
-
-      {/* Hero Image */}
-      <a id="hero" />
-      <div className="hero-image my-4">
-        {heroImage ? (
-          <Image
-            src={PROXY_URL + heroImage}
-            width={0}
-            height={0}
-            style={{ width: "100%", height: "auto" }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            alt="Hero"
-            className="w-full h-auto rounded-lg shadow-lg"
-          />
-        ) : (
-          <div className="w-full h-64 flex items-center justify-center bg-gray-200 rounded-lg shadow-lg">
-            No image available for selected date
+      <div className="container mx-auto flex flex-col md:flex-row">
+        {/* Hero Image */}
+        <div className="flex-1 my-4 md:my-0">
+          <a id="hero" />
+          <div className="hero-image">
+            {heroImage ? (
+                <Image
+                    src={PROXY_URL + heroImage}
+                    width={0}
+                    height={0}
+                    style={{ width: "100%", height: "auto" }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    alt="Hero"
+                    className="w-full h-auto rounded-lg shadow-lg"
+                />
+            ) : (
+                <div className="w-full h-64 flex items-center justify-center bg-gray-200 rounded-lg shadow-lg">
+                  No image available for selected date
+                </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Image Grid */}
-      <div className="grid sm:grid-cols-4 md:grid-cols-8 gap-8">
-        {filteredImages.map((image: { path: string }, index: number) => (
-          <div
-            key={index}
-            className="cursor-pointer"
-            onClick={() => handleHeroChange(image.path)}
-          >
-            <Image
-              src={PROXY_URL + image.path}
-              alt={`Thumbnail ${index}`}
-              width={0}
-              height={0}
-              style={{ width: "100%", height: "auto" }}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="w-full h-auto rounded-lg shadow-sm"
+        {/* Sidebar for Image Grid */}
+        <div className="w-full md:w-1/3 my-4 md:ml-4">
+          <div className="filter-toolbar mb-4">
+            <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                dateFormat="yyyy-MM-dd"
+                className="p-2 border border-gray-300 rounded-md"
+                placeholderText="Seleccione fecha"
+                minDate={twoWeeksAgo}
+                maxDate={today}
+                excludeDates={excludeDates}
             />
+            <p className="p-2">
+              {phenocam.metadata.sitio} - {currentPhotoDate?.toLocaleTimeString()}
+            </p>
           </div>
-        ))}
+
+          {/* Image Grid */}
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {filteredImages.map((image: { path: string }, index: number) => (
+                <div
+                    key={index}
+                    className="cursor-pointer"
+                    onClick={() => handleHeroChange(image.path)}
+                >
+                  <Image
+                      src={PROXY_URL + image.path}
+                      alt={`Thumbnail ${index}`}
+                      width={0}
+                      height={0}
+                      style={{ width: "100%", height: "auto" }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="w-full h-auto rounded-lg shadow-sm"
+                  />
+                </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
   );
 };
 
