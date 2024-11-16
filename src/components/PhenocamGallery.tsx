@@ -148,6 +148,7 @@ const PhenocamGallery: React.FC<PhenocamGalleryProps> = ({ phenocam }) => {
                   className="cursor-pointer"
                   onClick={() => handleHeroChange(image.path)}
               >
+                <span>{parseImageFilename(image.path)?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 <Image
                     src={PROXY_URL + image.path}
                     alt={`Thumbnail ${index}`}
