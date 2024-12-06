@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,9 +40,13 @@ export default function RootLayout({
                         <tbody>
                         <tr style={{height: '189px'}}>
                             <td style={{height: '189px'}}>
-                                <p style={{textAlign: 'center'}}><img
-                                    src="https://www.pucv.cl/uuaa/site/artic/20200122/imag/foto_0000000620200122102436/Footer_low_grey_2023v2.png"
-                                    className="responsive-img" width="100%" height="auto"/></p>
+                                <p style={{textAlign: 'center'}}>
+                                    <Image
+                                    alt={'Logos'}
+                                    src={'/PhenChile_mobile/static/images/logos_1200_200.png'}
+                                    width={1200}
+                                    height={200}
+                                    className="responsive-img" /></p>
                             </td>
                         </tr>
                         </tbody>

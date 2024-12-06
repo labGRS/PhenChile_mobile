@@ -5,6 +5,7 @@ import PhenocamGallery from "@/components/PhenocamGallery";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PROXY_URL } from "@/app/constants";
+import Image from "next/image";
 
 export type Phenocam = {
   key: string;
@@ -62,10 +63,12 @@ export default function Home(props: any) {
   return !loading ? (
     <>
       <p>
-        <img
-          src="https://www.pucv.cl/uuaa/site/artic/20180320/imag/foto_0000002620180320170803/Isologo_texto_negro.png"
+        <Image
+          src={'/PhenChile_mobile/static/images/pucv.png'}
           className="responsive-img"
-          width="250"
+          alt={'Logo PUCV'}
+          width={250}
+          height={250}
           style={{
             display: "block",
             marginLeft: "auto",
